@@ -10,26 +10,49 @@
         <h1>Edit @Model.Name </h1>
     </div>
 
-    @using (Html.BeginForm())
+    @using (Html.BeginForm("Edit", "Admin",
+        FormMethod.Post, new {enctype="multipart/form-data"}
+        ))
     {
             <div class="panel-body">
                 @Html.HiddenFor(x => x.ProductID)
 
                 @foreach (var property in ViewData.ModelMetadata.Properties)
                 {
-                    if (property.PropertyName != "ProductID")
+                    switch (property.PropertyName)
                     {
-                        <label>@(property.DisplayName ?? property.PropertyName)</label>
-                        if (property.PropertyName == "Description")
-                        {
-                            @Html.TextArea(property.PropertyName, null, new { @class = "form-control", rows = 5 })
-                        }
-                        else
-                        {
-                            @Html.TextBox(property.PropertyName, null, new { @class = "form-control" })
-                        }
+                        case "ProductID":
+                        case "ImageData":
+                        case "ImageMimeType":
+                            break;
+                        default:
+                                            <div class="form-group">
+                                                <label>@(property.DisplayName ?? property.PropertyName)</label>
+                                               @if (property.PropertyName == "Description")
+                                               {
+                                                @Html.TextArea(property.PropertyName, null, new { @class = "form-control", rows = 5 })
+                                               }
+                                               else
+                                               {
+                                                    @Html.TextBox(property.PropertyName, null, new { @class = "form-control" })
+                                               }
+
+                                                @Html.ValidationMessage(property.PropertyName)
+                                           </div>
+                            break;
                     }
                 }
+                <div class="form-group">
+                    @if (Model.ImageData == null)
+                    {
+                        <div class="form-control-static">No Image</div>
+                    }
+                    else
+                    {
+                        <img class="img-thumbnail" width="150" height="150"
+                             src="@Url.Action("GetImage", "Product", new {Model.ProductID})"  />
+                    }
+                </div>
             </div>
             <div class="panel-footer">
                 <input type="submit" value="Save" class="btn btn-primary" />
